@@ -22,6 +22,7 @@ class DynamicArray{
 				}	
 			delete[] data;
 			data = newData;
+			capacity = newCapacity;
 		}
 		data[size] = value;
 		++size;
@@ -42,10 +43,33 @@ class DynamicArray{
 	}
 	//insert element using index
 	void insert(unsigned int index, const T& value){
-		if(index > size){
-			throw std::out_of_range("Index is out of range!");
+		if(index >= 0 && index <= size){
+			if(size == capacity){
+				int newCapacity = capacity == 0 ? 1 : capacity * 2;
+				T* newData = new T[newCapacity];
+				for(int i = 0; i < size; ++i){
+					newData[i] = data[i];
+				}
+				delete[] data;
+				data = newData;
+				capacity = newCapacity;
+			}
+			T* newData = new T[size + 1];
+			for(int i = 0; i < size + 1; ++i){
+				if(i < index){
+					newData[i] = data[i];
+				}else if(i == index){
+					newData[i] = value;
+				}else{
+					newData[i] = data[i - 1];
+				}
+			}
+			delete[] data;
+			data = newData;
+			++size;
+		}else{
+			throw std::out_of_range("Index is out of range");
 		}
-		data[index] = value;
 	}
 	//the functionality same as push_back
 	void insert(const T& value){
@@ -57,6 +81,7 @@ class DynamicArray{
 			}
 			delete[] data;
 			data = newData;
+			capacity = newCapacity;
 		}
 		data[size] = value;
 		++size;
@@ -70,18 +95,19 @@ class DynamicArray{
 	}
 	//removing element using index
 	void remove(unsigned int index){
-		if(index > size){
-			throw std::out_of_range("The index is out of range!");
-		}
-		T* newData = new T[size];
-		for(int i = 0; i < size; ++i){
-			if(i != index){
-				newData[i] = data[i];
+		if(index >= 0 && index < size){
+			T* newData = new T[size - 1];
+			for(int i = 0, j = 0; i < size; ++i){
+				if(i != index){
+					j++;
+					newData[j] = data[i];
+				}
 			}
+			delete[] data;
+			data = newData;
+			--size;
 		}
-		delete[] data;
-		data = newData;
-		--size;
+		throw std::out_of_range("The index is out of range!");
 	}
 	//make the size and capacity equal
 	void shrink_to_fit(){
@@ -149,6 +175,9 @@ int main(){
 	
 	arr.insert(1, 20);
 	arr.insert(10);
+	
+	arr.insert(0, 9);
+	arr.insert(2, 4);
 
 	for(const auto& element : arr){
 		std::cout << element << " ";
